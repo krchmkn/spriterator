@@ -3,11 +3,13 @@ name = "spriterator"
 version = "0.1.0"
 edition = "2021"
 authors = ["Dmitrii Korchemkin <mail@kda.name>"]
-description = "Generates a sprite sheet from images in the specified directory."
+description = "Generates sprite sheets from images in the specified directory."
 license = "MIT OR Apache-2.0"
 documentation = "https://docs.rs/spriterator"
+repository = "https://github.com/krchmkn/spriterator"
 keywords = ["image", "sprite", "graphics", "processing"]
 categories = ["graphics", "image-processing"]
+readme = "README.md"
 
 [dependencies]
 image = "0.25.5"

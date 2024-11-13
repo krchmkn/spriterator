@@ -8,7 +8,7 @@ license = "MIT OR Apache-2.0"
 documentation = "https://docs.rs/spriterator"
 repository = "https://github.com/krchmkn/spriterator"
 keywords = ["image", "sprite", "graphics", "processing"]
-categories = ["graphics", "image", "multimedia"]
+categories = ["graphics", "multimedia"]
 readme = "README.md"
 
 [dependencies]

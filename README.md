@@ -11,8 +11,7 @@
 - **Compact Layout**: Places images row by row without extra spacing.
 - **Automatic Sheet Splitting**: Creates multiple sprite sheets if images exceed specified dimensions.
 - **Transparent Padding Removal**: Trims transparent edges to reduce unused space.
-- **Optional Parallel Processing**: Loads and processes images in parallel (enabled by `rayon`).
-- **Supported Formats**: Accepts `png`, `jpg`, `jpeg`, `gif`, `bmp`, `ico`, `tiff`, `webp`.
+- **Supported Formats**: Accepts `png`, `jpg`, `jpeg`, `webp`.
 
 ## Example
 

@@ -7,10 +7,7 @@ use walkdir::WalkDir;
 
 /// A static set containing supported image file extensions, used for quick verification of valid image files.
 static IMAGE_EXTENSIONS: Lazy<HashSet<&'static str>> = Lazy::new(|| {
-    ["png", "jpg", "jpeg", "gif", "bmp", "ico", "tiff", "webp"]
-        .iter()
-        .cloned()
-        .collect()
+    ["png", "jpg", "jpeg", "webp"].iter().cloned().collect()
 });
 
 /// `Spriterator` is responsible for generating optimized sprite sheets from images, with customizable dimensions.

@@ -1,6 +1,6 @@
 # Spriterator
 
-[![build/test](https://github.com/krchmkn/spriterator/actions/workflows/rust.yml/badge.svg)](https://github.com/krchmkn/spriterator/actions/workflows/rust.yml)
+[![build](https://github.com/krchmkn/spriterator/actions/workflows/build.yml/badge.svg)](https://github.com/krchmkn/spriterator/actions/workflows/build.yml)
 
 [Spriterator](https://crates.io/crates/spriterator) is a Rust library that generates compact sprite sheets from images in a specified directory. It arranges images row by row to minimize empty space and avoid gaps, even if the images are of different sizes. If the images exceed a specified maximum height, the library will create multiple sprite sheets.
 

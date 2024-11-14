@@ -1,33 +1,50 @@
+
 # Spriterator
 
 [![build](https://github.com/krchmkn/spriterator/actions/workflows/build.yml/badge.svg)](https://github.com/krchmkn/spriterator/actions/workflows/build.yml)
 
-[Spriterator](https://crates.io/crates/spriterator) is a Rust library that generates compact sprite sheets from images in a specified directory. It arranges images row by row to minimize empty space and avoid gaps, even if the images are of different sizes. If the images exceed a specified maximum height, the library will create multiple sprite sheets.
-
-This library supports common image formats such as PNG, JPEG, GIF, and WebP, and it can use optional parallel processing (via `rayon`) for efficient image loading.
+[Spriterator](https://crates.io/crates/spriterator) is a Rust library that creates optimized sprite sheets by combining multiple images from a specified directory into a compact format. It arranges images row by row to minimize gaps, creating multiple sheets if necessary when images exceed defined maximum dimensions. The library supports popular image formats and offers parallel processing to speed up large tasks.
 
 ## Features
 
-- **Recursive Directory Scanning**: Finds all images within nested directories.
-- **Compact Layout with No Spacing**: Arranges images tightly in rows without gaps, regardless of size.
-- **Multiple Sheets if Necessary**: Generates multiple sprite sheets when images exceed specified height limits.
-- **Optional Parallel Processing**: Speeds up loading and processing of images (requires `rayon` feature).
-- **Supported Formats**: Handles common image formats (`png`, `jpg`, `jpeg`, `gif`, `bmp`, `ico`, `tiff`, `webp`).
+- **Recursive Directory Scanning**: Finds all images in nested directories.
+- **Compact Layout**: Places images row by row without extra spacing.
+- **Automatic Sheet Splitting**: Creates multiple sprite sheets if images exceed specified dimensions.
+- **Transparent Padding Removal**: Trims transparent edges to reduce unused space.
+- **Optional Parallel Processing**: Loads and processes images in parallel (enabled by `rayon`).
+- **Supported Formats**: Accepts `png`, `jpg`, `jpeg`, `gif`, `bmp`, `ico`, `tiff`, `webp`.
 
-## Usage
+## Example
 
-Here is an example of using `Spriterator` to generate sprite sheets:
+The following example demonstrates how to use `Spriterator` to create sprite sheets from images in a directory.
 
 ```rust
 use spriterator::Spriterator;
+use std::fs;
+use std::path::Path;
+
+fn prepare_directory(path: &str) -> std::io::Result<()> {
+    let dir_path = Path::new(path);
+
+    if dir_path.exists() {
+        fs::remove_dir_all(dir_path)?;
+    }
+
+    fs::create_dir_all(dir_path)?;
+
+    Ok(())
+}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let spriterator = Spriterator::new("path/to/images", 1024, 2048);
+    let output_dir = "/path/to/sprites";
+
+    prepare_directory(output_dir)?;
+
+    let spriterator = Spriterator::new("/path/to/images", 1200, 2048);
     let sprites = spriterator.generate()?;
 
-    // Save each generated sprite sheet
     for (index, sprite) in sprites.iter().enumerate() {
-        sprite.save(format!("sprite_sheet_{}.webp", index))?;
+        sprite.save(format!("{}/{}.webp", output_dir, index))?;
     }
 
     Ok(())

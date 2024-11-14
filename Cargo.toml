@@ -1,6 +1,6 @@
 [package]
 name = "spriterator"
-version = "0.1.0-alpha.2"
+version = "0.1.0-alpha.3"
 edition = "2021"
 authors = ["Dmitrii Korchemkin <mail@kda.name>"]
 description = "Generates sprite sheets from images in the specified directory."
@@ -13,9 +13,4 @@ readme = "README.md"
 
 [dependencies]
 image = "0.25.5"
-once_cell = "1.20.2"
-rayon = "1.10.0"
 walkdir = "2.5.0"
-
-[dev-dependencies]
-tempfile = "3.14.0"

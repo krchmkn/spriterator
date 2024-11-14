@@ -3,15 +3,7 @@
 
 [![build](https://github.com/krchmkn/spriterator/actions/workflows/build.yml/badge.svg)](https://github.com/krchmkn/spriterator/actions/workflows/build.yml)
 
-[Spriterator](https://crates.io/crates/spriterator) is a Rust library that creates optimized sprite sheets by combining multiple images from a specified directory into a compact format. It arranges images row by row to minimize gaps, creating multiple sheets if necessary when images exceed defined maximum dimensions. The library supports popular image formats and offers parallel processing to speed up large tasks.
-
-## Features
-
-- **Recursive Directory Scanning**: Finds all images in nested directories.
-- **Compact Layout**: Places images row by row without extra spacing.
-- **Automatic Sheet Splitting**: Creates multiple sprite sheets if images exceed specified dimensions.
-- **Transparent Padding Removal**: Trims transparent edges to reduce unused space.
-- **Supported Formats**: Accepts `png`, `jpg`, `jpeg`, `webp`.
+[Spriterator](https://crates.io/crates/spriterator) is a Rust library that creates sprite sheets by combining multiple images from a specified directory into a compact format.
 
 ## Example
 
@@ -35,15 +27,21 @@ fn prepare_directory(path: &str) -> std::io::Result<()> {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let output_dir = "/path/to/sprites";
+    let ext = "png";
+    let output_dir = format!("/parth/to/sprites/{}", ext);
+    
+    prepare_directory(output_dir.as_str())?;
 
-    prepare_directory(output_dir)?;
-
-    let spriterator = Spriterator::new("/path/to/images", 1200, 2048);
+    let size = 1024;
+    let spriterator = Spriterator::new(
+        format!("/parth/to/images/{}", ext).as_str(),
+        size,
+        size,
+    );
     let sprites = spriterator.generate()?;
 
     for (index, sprite) in sprites.iter().enumerate() {
-        sprite.save(format!("{}/{}.webp", output_dir, index))?;
+        sprite.save(format!("{}/{}.{}", output_dir, index, ext))?;
     }
 
     Ok(())

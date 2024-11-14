@@ -1,6 +1,6 @@
 [package]
 name = "spriterator"
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 edition = "2021"
 authors = ["Dmitrii Korchemkin <mail@kda.name>"]
 description = "Generates sprite sheets from images in the specified directory."

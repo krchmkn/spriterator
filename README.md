@@ -13,7 +13,6 @@ The following example demonstrates how to use `Spriterator` to create sprite she
 use spriterator::Spriterator;
 use std::fs;
 use std::path::Path;
-use std::time::Instant;
 
 fn prepare_directory(path: &str) -> std::io::Result<()> {
     let dir_path = Path::new(path);

@@ -37,6 +37,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         format!("/parth/to/images/{}", ext).as_str(),
         size,
         size,
+        None,
+        None,
     );
     let sprites = spriterator.generate()?;
 

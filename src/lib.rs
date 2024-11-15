@@ -5,8 +5,11 @@ use walkdir::WalkDir;
 
 const SUPPORTED_EXTENSIONS: [&str; 2] = ["png", "webp"];
 
-/// A struct that generates sprite sheets by arranging images in a grid layout
-/// and trimming transparent areas from each sprite.
+/// A struct to handle image loading, resizing, and sprite generation within a specified directory.
+///
+/// The `Spriterator` is designed to create a collection of sprites from images found in a directory,
+/// arranging them within a defined maximum width and height. Supports resizing and cropping of images
+/// and allows control over the size of individual images if desired.
 pub struct Spriterator {
     dir_path: String,
     max_width: u32,
@@ -16,15 +19,17 @@ pub struct Spriterator {
 }
 
 impl Spriterator {
-    /// Creates a new `Spriterator` instance.
+    /// Creates a new instance of `Spriterator`.
     ///
-    /// # Arguments
+    /// # Parameters
+    /// - `dir_path`: Path to the directory containing the images.
+    /// - `max_width`: Maximum width of each generated sprite.
+    /// - `max_height`: Maximum height of each generated sprite.
+    /// - `image_width`: Optional target width for individual images.
+    /// - `image_height`: Optional target height for individual images.
     ///
-    /// * `dir_path` - Path to the directory containing images.
-    /// * `max_width` - Maximum width for each sprite.
-    /// * `max_height` - Maximum height for each sprite.
-    /// * `image_width` - Optional width for resizing images.
-    /// * `image_height` - Optional height for resizing images.
+    /// # Returns
+    /// An initialized `Spriterator` instance.
     pub fn new(
         dir_path: &str,
         max_width: u32,
@@ -41,13 +46,14 @@ impl Spriterator {
         }
     }
 
-    /// Generates a vector of sprites by arranging images in rows.
-    /// Each sprite is trimmed to remove transparent areas.
+    /// Generates sprites from the images in the specified directory.
+    ///
+    /// Arranges images into sprites based on the maximum width and height constraints.
+    /// If an image exceeds these limits, a new sprite is created.
     ///
     /// # Returns
-    ///
-    /// A `Result` containing a vector of `RgbaImage` objects on success, or an error if image
-    /// loading or processing fails.
+    /// A `Result` containing a `Vec` of `RgbaImage` sprites if successful,
+    /// or an `Error` if an issue occurs during image processing.
     pub fn generate(&self) -> Result<Vec<RgbaImage>, Box<dyn Error>> {
         let images = self.get_images()?;
 
@@ -56,19 +62,19 @@ impl Spriterator {
         let (mut current_x, mut current_y, mut row_height) = (0, 0, 0);
 
         for img in &images {
-            // Move to the next row if the current image exceeds max width
             if current_x + img.width() > self.max_width {
                 current_y += row_height;
                 current_x = 0;
                 row_height = 0;
             }
 
-            // Start a new sprite if the current image exceeds max height
             if current_y + img.height() > self.max_height {
                 let trimmed_sprite = self.trim_transparent(&current_sprite);
                 sprites.push(trimmed_sprite);
 
-                current_sprite = RgbaImage::new(self.max_width, self.max_height);
+                for pixel in current_sprite.pixels_mut() {
+                    *pixel = image::Rgba([0, 0, 0, 0]); // Reset to fully transparent
+                }
                 current_x = 0;
                 current_y = 0;
                 row_height = 0;
@@ -85,8 +91,8 @@ impl Spriterator {
         Ok(sprites)
     }
 
-    fn get_images(&self) -> Result<Vec<DynamicImage>, Box<dyn Error>> {
-        let images: Vec<DynamicImage> = WalkDir::new(&self.dir_path)
+    fn get_images(&self) -> Result<Vec<RgbaImage>, Box<dyn Error>> {
+        let images: Vec<RgbaImage> = WalkDir::new(&self.dir_path)
             .into_iter()
             .filter_map(|entry| {
                 let path = entry.ok()?.path().to_path_buf();
@@ -98,31 +104,30 @@ impl Spriterator {
                     .unwrap_or(false);
 
                 if path.is_file() && is_image {
-                    let img = image::open(&path)
-                        .map_err(|e| {
-                            eprintln!("Failed to open image {}: {}. The image has been skipped.", path.display(), e);
-                            e
-                        })
-                        .ok()?;
+                    let img = image::open(&path).ok()?;
 
-                        if (self.image_width.is_none() && img.width() > self.max_width) || (self.image_height.is_none() && img.height() > self.max_height) {
-                        eprintln!(
-                            "Image {} dimensions {}x{} exceed max dimensions {}x{}. The image has been skipped.",
-                            path.display(),
-                            img.width(),
-                            img.height(),
-                            self.max_width,
-                            self.max_height
-                        );
-                        return None;
+                    if (self.image_width.is_none() && img.width() > self.max_width)
+                        || (self.image_height.is_none() && img.height() > self.max_height)
+                    {
+                        return Some(Err::<RgbaImage, Box<dyn Error>>(
+                            format!(
+                                "Image {} dimensions {}x{} exceed max dimensions {}x{}.",
+                                path.display(),
+                                img.width(),
+                                img.height(),
+                                self.max_width,
+                                self.max_height
+                            )
+                            .into(),
+                        ));
                     } else {
-                        Some(self.resize_image(img))
+                        Some(Ok(self.resize_image(img)))
                     }
                 } else {
                     None
                 }
             })
-            .collect();
+            .collect::<Result<Vec<_>, _>>()?;
 
         if images.is_empty() {
             return Err(format!(
@@ -158,20 +163,24 @@ impl Spriterator {
         crop_imm(sprite, min_x, min_y, max_x - min_x + 1, max_y - min_y + 1).to_image()
     }
 
-    fn resize_image(&self, img: DynamicImage) -> DynamicImage {
+    fn resize_image(&self, img: DynamicImage) -> RgbaImage {
         let (original_width, original_height) = img.dimensions();
 
         match (self.image_width, self.image_height) {
-            (Some(width), Some(height)) => img.resize_exact(width, height, FilterType::Lanczos3),
+            (Some(width), Some(height)) => img
+                .resize_exact(width, height, FilterType::Lanczos3)
+                .to_rgba8(),
             (Some(width), None) => {
                 let height = (original_height * width) / original_width;
                 img.resize_exact(width, height, FilterType::Lanczos3)
+                    .to_rgba8()
             }
             (None, Some(height)) => {
                 let width = (original_width * height) / original_height;
                 img.resize_exact(width, height, FilterType::Lanczos3)
+                    .to_rgba8()
             }
-            (None, None) => img,
+            (None, None) => img.to_rgba8(),
         }
     }
 }

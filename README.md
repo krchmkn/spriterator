@@ -1,33 +1,47 @@
+
 # Spriterator
 
 [![build](https://github.com/krchmkn/spriterator/actions/workflows/build.yml/badge.svg)](https://github.com/krchmkn/spriterator/actions/workflows/build.yml)
 
-[Spriterator](https://crates.io/crates/spriterator) is a Rust library that generates compact sprite sheets from images in a specified directory. It arranges images row by row to minimize empty space and avoid gaps, even if the images are of different sizes. If the images exceed a specified maximum height, the library will create multiple sprite sheets.
+[Spriterator](https://crates.io/crates/spriterator) is a Rust library that creates sprite sheets by combining multiple images from a specified directory into a compact format.
 
-This library supports common image formats such as PNG, JPEG, GIF, and WebP, and it can use optional parallel processing (via `rayon`) for efficient image loading.
+## Example
 
-## Features
-
-- **Recursive Directory Scanning**: Finds all images within nested directories.
-- **Compact Layout with No Spacing**: Arranges images tightly in rows without gaps, regardless of size.
-- **Multiple Sheets if Necessary**: Generates multiple sprite sheets when images exceed specified height limits.
-- **Optional Parallel Processing**: Speeds up loading and processing of images (requires `rayon` feature).
-- **Supported Formats**: Handles common image formats (`png`, `jpg`, `jpeg`, `gif`, `bmp`, `ico`, `tiff`, `webp`).
-
-## Usage
-
-Here is an example of using `Spriterator` to generate sprite sheets:
+The following example demonstrates how to use `Spriterator` to create sprite sheets from images in a directory.
 
 ```rust
 use spriterator::Spriterator;
+use std::fs;
+use std::path::Path;
+
+fn prepare_directory(path: &str) -> std::io::Result<()> {
+    let dir_path = Path::new(path);
+
+    if dir_path.exists() {
+        fs::remove_dir_all(dir_path)?;
+    }
+
+    fs::create_dir_all(dir_path)?;
+
+    Ok(())
+}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let spriterator = Spriterator::new("path/to/images", 1024, 2048);
+    let ext = "png";
+    let output_dir = format!("/parth/to/sprites/{}", ext);
+    
+    prepare_directory(output_dir.as_str())?;
+
+    let size = 1024;
+    let spriterator = Spriterator::new(
+        format!("/parth/to/images/{}", ext).as_str(),
+        size,
+        size,
+    );
     let sprites = spriterator.generate()?;
 
-    // Save each generated sprite sheet
     for (index, sprite) in sprites.iter().enumerate() {
-        sprite.save(format!("sprite_sheet_{}.webp", index))?;
+        sprite.save(format!("{}/{}.{}", output_dir, index, ext))?;
     }
 
     Ok(())

@@ -27,21 +27,23 @@ fn prepare_directory(path: &str) -> std::io::Result<()> {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let ext = "png";
-    let output_dir = format!("/parth/to/sprites/{}", ext);
+    let output_dir = "/path/to/sprites";
     
-    prepare_directory(output_dir.as_str())?;
+    prepare_directory(output_dir)?;
 
     let size = 1024;
     let spriterator = Spriterator::new(
-        format!("/parth/to/images/{}", ext).as_str(),
+        "/path/to/images",
         size,
         size,
+        Some(64),
+        Some(64),
     );
+
     let sprites = spriterator.generate()?;
 
     for (index, sprite) in sprites.iter().enumerate() {
-        sprite.save(format!("{}/{}.{}", output_dir, index, ext))?;
+        sprite.save(format!("{}/{}.{}", output_dir, index, "webp"))?;
     }
 
     Ok(())

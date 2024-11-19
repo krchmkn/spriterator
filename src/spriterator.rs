@@ -142,8 +142,9 @@ impl Spriterator {
 
         if images.is_empty() {
             return Err(format!(
-                "No images with supported extensions {:?} were found in the specified directory.",
-                SUPPORTED_EXTENSIONS
+                "No images with supported extensions {:?} were found in the specified directory: {}",
+                SUPPORTED_EXTENSIONS,
+                self.dir_path
             )
             .into());
         }

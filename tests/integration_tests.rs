@@ -11,6 +11,7 @@ use std::path::Path;
 /// OUTPUT_DIR = /path/to/output/sprites
 /// FILE_EXTENSION = png
 #[test]
+#[ignore] // Ignored due to CI requirements (a directory with images is necessary for it to function).
 fn spriterator_test() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
 

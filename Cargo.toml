@@ -17,3 +17,6 @@ walkdir = "2.5.0"
 
 [dev-dependencies]
 dotenv = "0.15.0"
+
+[badges]
+maintenance = { status = "deprecated" }
